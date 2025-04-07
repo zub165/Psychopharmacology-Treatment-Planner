@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Psychopharmacology Treatment Planner</title>
+
+    <!-- Styles and Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --secondary: #166088;
+            --accent: #4fc3f7;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .logo i {
+            font-size: 1.5rem;
+        }
+        
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        
+        .tab {
+            display: flex;
+            background-color: var(--secondary);
+            overflow: hidden;
+        }
+        
+        .tab button {
+            background-color: inherit;
+            color: white;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab button:hover {
+            background-color: var(--accent);
+            color: var(--dark);
+        }
+        
+        .tab button.active {
+            background-color: var(--accent);
+            color: var(--dark);
+            font-weight: bold;
+        }
+        
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            animation: fadeEffect 1s;
+        }
+        
+        @keyframes fadeEffect {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 20px;
+        }
+        
+        /* Diagnosis & Assessment specific styles */
+        .assessment-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .symptom-checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .symptom-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .results-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .diagnosis-result {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .diagnosis-result h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .treatment-plan {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .medication-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .medication-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .medication-name {
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+        
+        .medication-class {
+            font-style: italic;
+            color: #666;
+        }
+        
+        .receptor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .receptor-item {
+            background: #f0f8ff;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .receptor-affinity {
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        
+        .print-btn {
+            margin-top: 20px;
+            display: inline-block;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .tab {
+                flex-direction: column;
+            }
+            
+            .symptom-checklist {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-brain"></i>
+            <span>Psychopharmacology Treatment Planner</span>
+        </div>
+        <div class="user-controls">
+            <span id="userDisplay"></span>
+            <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+    </header>
+
+    <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'medicationGuide')"><i class="fas fa-pills"></i> Medication Guide</button>
+        <button class="tablinks" onclick="openTab(event, 'diagnosisAssessment')"><i class="fas fa-clipboard-list"></i> Diagnosis & Assessment</button>
+        <button class="tablinks" onclick="openTab(event, 'treatmentPlanner')"><i class="fas fa-tasks"></i> Treatment Planner</button>
+        <button class="tablinks" onclick="openTab(event, 'dosingCalculator')"><i class="fas fa-calculator"></i> Dosing Calculator</button>
+        <button class="tablinks" onclick="openTab(event, 'receptorReference')"><i class="fas fa-microscope"></i> Receptor Reference</button>
+        <button class="tablinks" onclick="openTab(event, 'distributionFunctions')"><i class="fas fa-chart-bar"></i> Distribution Functions</button>
+    </div>
+
+    <!-- Medication Guide Tab -->
+    <div id="medicationGuide" class="tabcontent">
+        <h2><i class="fas fa-pills"></i> Medication Guide</h2>
+        <div class="form-group">
+            <label for="medicationSearch">Search Medications:</label>
+            <input type="text" id="medicationSearch" class="form-control" placeholder="Enter medication name or class...">
+        </div>
+        
+        <div id="medicationList" class="medication-list">
+            <!-- Medications will be populated here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Diagnosis & Assessment Tab -->
+    <div id="diagnosisAssessment" class="tabcontent">
+        <h2><i class="fas fa-clipboard-list"></i> Diagnosis & Assessment</h2>
+        
+        <div class="assessment-form">
+            <h3>Patient Information</h3>
+            <div class="form-group">
+                <label for="patientAge">Age:</label>
+                <input type="number" id="patientAge" class="form-control" min="1" max="120">
+            </div>
+            
+            <div class="form-group">
+                <label for="patientGender">Gender:</label>
+                <select id="patientGender" class="form-control">
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="medicalHistory">Medical History:</label>
+                <textarea id="medicalHistory" class="form-control" placeholder="Any relevant medical history..."></textarea>
+            </div>
+            
+            <h3>Symptom Checklist</h3>
+            <p>Select all symptoms that apply:</p>
+            
+            <div class="symptom-checklist" id="moodSymptoms">
+                <h4>Mood Symptoms</h4>
+                <div class="symptom-item">
+                    <input type="checkbox" id="depressedMood" value="depressedMood">
+                    <label for="depressedMood">Depressed mood</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="anhedonia" value="anhedonia">
+                    <label for="anhedonia">Anhedonia</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="elevatedMood" value="elevatedMood">
+                    <label for="elevatedMood">Elevated mood</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="irritability" value="irritability">
+                    <label for="irritability">Irritability</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="moodLability" value="moodLability">
+                    <label for="moodLability">Mood lability</label>
+                </div>
+            </div>
+            
+            <div class="symptom-checklist" id="anxietySymptoms">
+                <h4>Anxiety Symptoms</h4>
+                <div class="symptom-item">
+                    <input type="checkbox" id="excessiveWorry" value="excessiveWorry">
+                    <label for="excessiveWorry">Excessive worry</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="panicAttacks" value="panicAttacks">
+                    <label for="panicAttacks">Panic attacks</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="socialAnxiety" value="socialAnxiety">
+                    <label for="socialAnxiety">Social anxiety</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="ocdSymptoms" value="ocdSymptoms">
+                    <label for="ocdSymptoms">OCD symptoms</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="ptsdSymptoms" value="ptsdSymptoms">
+                    <label for="ptsdSymptoms">PTSD symptoms</label>
+                </div>
+            </div>
+            
+            <div class="symptom-checklist" id="psychoticSymptoms">
+                <h4>Psychotic Symptoms</h4>
+                <div class="symptom-item">
+                    <input type="checkbox" id="hallucinations" value="hallucinations">
+                    <label for="hallucinations">Hallucinations</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="delusions" value="delusions">
+                    <label for="delusions">Delusions</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="disorganizedSpeech" value="disorganizedSpeech">
+                    <label for="disorganizedSpeech">Disorganized speech</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="disorganizedBehavior" value="disorganizedBehavior">
+                    <label for="disorganizedBehavior">Disorganized behavior</label>
+                </div>
+                <div class="symptom-item">
+                    <input type="checkbox" id="negativeSymptoms" value="negativeSymptoms">
+                    <label for="negativeSymptoms">Negative symptoms</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="additionalNotes">Additional Notes:</label>
+                <textarea id="additionalNotes" class="form-control" placeholder="Any other relevant information..."></textarea>
+            </div>
+            
+            <button id="assessBtn" class="btn btn-primary">Assess Patient</button>
+        </div>
+        
+        <div id="assessmentResults" class="results-container" style="display: none;">
+            <h3>Assessment Results</h3>
+            <div id="diagnosisResults">
+                <!-- Diagnosis will be populated here -->
+            </div>
+            <button id="generatePlanBtn" class="btn btn-success">Generate Treatment Plan</button>
+        </div>
+    </div>
+
+    <!-- Treatment Planner Tab -->
+    <div id="treatmentPlanner" class="tabcontent">
+        <h2><i class="fas fa-tasks"></i> Treatment Planner</h2>
+        
+        <div id="treatmentPlanContainer" class="results-container">
+            <p>Complete the Diagnosis & Assessment section to generate a treatment plan.</p>
+        </div>
+    </div>
+
+    <!-- Dosing Calculator Tab -->
+    <div id="dosingCalculator" class="tabcontent">
+        <h2><i class="fas fa-calculator"></i> Dosing Calculator</h2>
+        
+        <div class="assessment-form">
+            <div class="form-group">
+                <label for="calcMedication">Medication:</label>
+                <select id="calcMedication" class="form-control">
+                    <option value="">Select a medication</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="calcPatientWeight">Patient Weight (kg):</label>
+                <input type="number" id="calcPatientWeight" class="form-control" min="20" max="300">
+            </div>
+            
+            <div class="form-group">
+                <label for="calcIndication">Indication:</label>
+                <select id="calcIndication" class="form-control">
+                    <option value="">Select indication</option>
+                    <option value="depression">Depression</option>
+                    <option value="anxiety">Anxiety</option>
+                    <option value="psychosis">Psychosis</option>
+                    <option value="bipolar">Bipolar Disorder</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="calcRenalFunction">Renal Function:</label>
+                <select id="calcRenalFunction" class="form-control">
+                    <option value="normal">Normal</option>
+                    <option value="mild">Mild impairment</option>
+                    <option value="moderate">Moderate impairment</option>
+                    <option value="severe">Severe impairment</option>
+                </select>
+            </div>
+            
+            <button id="calculateDoseBtn" class="btn btn-primary">Calculate Dose</button>
+        </div>
+        
+        <div id="doseResults" class="results-container" style="display: none;">
+            <h3>Dosing Recommendation</h3>
+            <div id="doseRecommendation">
+                <!-- Results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Receptor Reference Tab -->
+    <div id="receptorReference" class="tabcontent">
+        <h2><i class="fas fa-microscope"></i> Receptor Reference</h2>
+        
+        <div class="form-group">
+            <label for="receptorSearch">Search Receptors:</label>
+            <input type="text" id="receptorSearch" class="form-control" placeholder="Enter receptor name...">
+        </div>
+        
+        <div id="receptorInfo">
+            <div class="medication-card">
+                <h3>Common Neurotransmitter Receptors</h3>
+                
+                <h4>Dopamine Receptors</h4>
+                <div class="receptor-grid">
+                    <div class="receptor-item">D1 <span class="receptor-affinity">(excitatory)</span></div>
+                    <div class="receptor-item">D2 <span class="receptor-affinity">(inhibitory)</span></div>
+                    <div class="receptor-item">D3</div>
+                    <div class="receptor-item">D4</div>
+                    <div class="receptor-item">D5</div>
+                </div>
+                
+                <h4>Serotonin Receptors</h4>
+                <div class="receptor-grid">
+                    <div class="receptor-item">5-HT1A <span class="receptor-affinity">(autoreceptor)</span></div>
+                    <div class="receptor-item">5-HT2A <span class="receptor-affinity">(hallucinogenic)</span></div>
+                    <div class="receptor-item">5-HT2C</div>
+                    <div class="receptor-item">5-HT3 <span class="receptor-affinity">(nausea)</span></div>
+                    <div class="receptor-item">5-HT4</div>
+                    <div class="receptor-item">5-HT6</div>
+                    <div class="receptor-item">5-HT7</div>
+                </div>
+                
+                <h4>Other Receptors</h4>
+                <div class="receptor-grid">
+                    <div class="receptor-item">α1-adrenergic</div>
+                    <div class="receptor-item">α2-adrenergic</div>
+                    <div class="receptor-item">β-adrenergic</div>
+                    <div class="receptor-item">H1 histamine</div>
+                    <div class="receptor-item">M1 muscarinic</div>
+                    <div class="receptor-item">NMDA glutamate</div>
+                    <div class="receptor-item">AMPA glutamate</div>
+                    <div class="receptor-item">GABA-A</div>
+                    <div class="receptor-item">GABA-B</div>
+                    <div class="receptor-item">μ-opioid</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribution Functions Section -->
+    <div id="distributionFunctions" class="tabcontent">
+        <h2>Distribution & Clinical Support Functions</h2>
+        
+        <!-- Weight-Based Distribution -->
+        <div class="distribution-card">
+            <h3>Weight-Based Dosing Calculator</h3>
+            <div class="form-group">
+                <label for="patientWeight">Patient Weight (kg)</label>
+                <input type="number" id="patientWeight" step="0.1" min="0">
+            </div>
+            <div class="form-group">
+                <label for="medicationSelect">Select Medication</label>
+                <select id="medicationSelect">
+                    <option value="">Choose medication...</option>
+                    <option value="fluoxetine">Fluoxetine (Prozac)</option>
+                    <option value="sertraline">Sertraline (Zoloft)</option>
+                    <option value="venlafaxine">Venlafaxine (Effexor)</option>
+                    <option value="bupropion">Bupropion (Wellbutrin)</option>
+                </select>
+            </div>
+            <button onclick="calculateWeightBasedDose()" class="btn-primary">Calculate Dose</button>
+            <div id="weightBasedResult" class="result-box"></div>
+        </div>
+
+        <!-- Renal Function Adjustment -->
+        <div class="distribution-card">
+            <h3>Renal Function Dose Adjustment</h3>
+            <div class="form-group">
+                <label for="creatinineClearance">Creatinine Clearance (mL/min)</label>
+                <input type="number" id="creatinineClearance" step="0.1" min="0">
+            </div>
+            <div class="form-group">
+                <label for="renalMedSelect">Select Medication</label>
+                <select id="renalMedSelect">
+                    <option value="">Choose medication...</option>
+                    <option value="lithium">Lithium</option>
+                    <option value="gabapentin">Gabapentin</option>
+                    <option value="pregabalin">Pregabalin</option>
+                </select>
+            </div>
+            <button onclick="calculateRenalAdjustedDose()" class="btn-primary">Calculate Adjusted Dose</button>
+            <div id="renalAdjustmentResult" class="result-box"></div>
+        </div>
+
+        <!-- Drug Level Monitoring -->
+        <div class="distribution-card">
+            <h3>Therapeutic Drug Monitoring</h3>
+            <div class="form-group">
+                <label for="drugLevel">Current Drug Level</label>
+                <input type="number" id="drugLevel" step="0.1" min="0">
+            </div>
+            <div class="form-group">
+                <label for="monitoringMedSelect">Select Medication</label>
+                <select id="monitoringMedSelect">
+                    <option value="">Choose medication...</option>
+                    <option value="lithium">Lithium</option>
+                    <option value="valproate">Valproate</option>
+                    <option value="carbamazepine">Carbamazepine</option>
+                    <option value="clozapine">Clozapine</option>
+                </select>
+            </div>
+            <button onclick="evaluateDrugLevel()" class="btn-primary">Evaluate Level</button>
+            <div id="drugLevelResult" class="result-box"></div>
+        </div>
+
+        <!-- Drug Interaction Checker -->
+        <div class="distribution-card">
+            <h3>Drug Interaction Analysis</h3>
+            <div class="form-group">
+                <label>Select Current Medications</label>
+                <div class="checkbox-group" id="interactionMedList">
+                    <div><input type="checkbox" id="med1" value="fluoxetine"><label for="med1">Fluoxetine</label></div>
+                    <div><input type="checkbox" id="med2" value="lithium"><label for="med2">Lithium</label></div>
+                    <div><input type="checkbox" id="med3" value="clozapine"><label for="med3">Clozapine</label></div>
+                    <div><input type="checkbox" id="med4" value="valproate"><label for="med4">Valproate</label></div>
+                    <div><input type="checkbox" id="med5" value="carbamazepine"><label for="med5">Carbamazepine</label></div>
+                </div>
+            </div>
+            <button onclick="checkInteractions()" class="btn-warning">Check Interactions</button>
+            <div id="interactionResult" class="result-box warning-box"></div>
+        </div>
+
+        <!-- Clinical Pearls and Warnings -->
+        <div class="distribution-card">
+            <h3>Clinical Decision Support</h3>
+            <div class="form-group">
+                <label for="clinicalScenario">Select Clinical Scenario</label>
+                <select id="clinicalScenario">
+                    <option value="">Choose scenario...</option>
+                    <option value="elderly">Elderly Patient (>65 years)</option>
+                    <option value="pregnancy">Pregnancy</option>
+                    <option value="hepatic">Hepatic Impairment</option>
+                    <option value="bleeding">Bleeding Risk</option>
+                </select>
+            </div>
+            <button onclick="getClinicalGuidance()" class="btn-info">Get Guidance</button>
+            <div id="clinicalGuidanceResult" class="result-box info-box"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 Psychopharmacology Treatment Planner. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // User greeting
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (user?.username) {
+            document.getElementById("userDisplay").textContent = `Welcome, ${user.username}`;
+        }
+
+        // Logout logic
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("loggedIn");
+            localStorage.removeItem("user");
+            window.location.href = "login.html";
+        });
+
+        // Tab logic with persistence
+        function openTab(evt, tabName) {
+            const contents = document.getElementsByClassName("tabcontent");
+            const links = document.getElementsByClassName("tablinks");
+            for (let i = 0; i < contents.length; i++) contents[i].style.display = "none";
+            for (let i = 0; i < links.length; i++) links[i].className = links[i].className.replace(" active", "");
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+            localStorage.setItem("activeTab", tabName);
+        }
+
+        // On load, restore last tab
+        window.addEventListener("load", () => {
+            const defaultTab = localStorage.getItem("activeTab") || "medicationGuide";
+            const btn = [...document.getElementsByClassName("tablinks")].find(b => b.getAttribute("onclick")?.includes(defaultTab));
+            if (btn) btn.click();
+            
+            // Initialize medication data
+            initializeMedicationData();
+        });
+
+        // Medication Data
+        const medications = [
+            {
+                name: "Fluoxetine",
+                class: "SSRI",
+                indications: ["Major Depressive Disorder", "OCD", "Panic Disorder", "Bulimia Nervosa"],
+                receptors: [
+                    { name: "SERT", affinity: "high" },
+                    { name: "5-HT2C", affinity: "moderate" },
+                    { name: "α1-adrenergic", affinity: "low" }
+                ],
+                dosing: {
+                    depression: { start: "20mg", max: "80mg" },
+                    ocd: { start: "20mg", max: "80mg" },
+                    panic: { start: "10mg", max: "60mg" }
+                }
+            },
+            {
+                name: "Sertraline",
+                class: "SSRI",
+                indications: ["Major Depressive Disorder", "OCD", "Panic Disorder", "PTSD", "Social Anxiety"],
+                receptors: [
+                    { name: "SERT", affinity: "high" },
+                    { name: "DAT", affinity: "low" },
+                    { name: "5-HT2C", affinity: "moderate" }
+                ],
+                dosing: {
+                    depression: { start: "50mg", max: "200mg" },
+                    ocd: { start: "50mg", max: "200mg" },
+                    panic: { start: "25mg", max: "200mg" }
+                }
+            },
+            {
+                name: "Escitalopram",
+                class: "SSRI",
+                indications: ["Major Depressive Disorder", "Generalized Anxiety Disorder"],
+                receptors: [
+                    { name: "SERT", affinity: "very high" },
+                    { name: "5-HT2C", affinity: "low" }
+                ],
+                dosing: {
+                    depression: { start: "10mg", max: "20mg" },
+                    anxiety: { start: "5mg", max: "20mg" }
+                }
+            },
+            {
+                name: "Venlafaxine",
+                class: "SNRI",
+                indications: ["Major Depressive Disorder", "Generalized Anxiety Disorder", "Panic Disorder", "Social Anxiety"],
+                receptors: [
+                    { name: "SERT", affinity: "high" },
+                    { name: "NET", affinity: "moderate" },
+                    { name: "5-HT2C", affinity: "low" }
+                ],
+                dosing: {
+                    depression: { start: "37.5-75mg", max: "375mg" },
+                    anxiety: { start: "37.5mg", max: "225mg" }
+                }
+            },
+            {
+                name: "Bupropion",
+                class: "NDRI",
+                indications: ["Major Depressive Disorder", "Smoking Cessation"],
+                receptors: [
+                    { name: "DAT", affinity: "moderate" },
+                    { name: "NET", affinity: "moderate" },
+                    { name: "nAChR", affinity: "antagonist" }
+                ],
+                dosing: {
+                    depression: { start: "150mg", max: "450mg" },
+                    smoking: { start: "150mg", max: "300mg" }
+                }
+            },
+            {
+                name: "Aripiprazole",
+                class: "Atypical Antipsychotic",
+                indications: ["Schizophrenia", "Bipolar Disorder", "Major Depressive Disorder (adjunct)", "Irritability in Autism"],
+                receptors: [
+                    { name: "D2", affinity: "partial agonist" },
+                    { name: "5-HT1A", affinity: "partial agonist" },
+                    { name: "5-HT2A", affinity: "antagonist" },
+                    { name: "5-HT2C", affinity: "antagonist" }
+                ],
+                dosing: {
+                    schizophrenia: { start: "10-15mg", max: "30mg" },
+                    bipolar: { start: "15mg", max: "30mg" },
+                    depression: { start: "2-5mg", max: "15mg" }
+                }
+            },
+            {
+                name: "Quetiapine",
+                class: "Atypical Antipsychotic",
+                indications: ["Schizophrenia", "Bipolar Disorder", "Major Depressive Disorder (adjunct)"],
+                receptors: [
+                    { name: "5-HT2A", affinity: "high" },
+                    { name: "D2", affinity: "moderate" },
+                    { name: "H1", affinity: "high" },
+                    { name: "α1-adrenergic", affinity: "high" }
+                ],
+                dosing: {
+                    schizophrenia: { start: "50mg", max: "800mg" },
+                    bipolar: { start: "50mg", max: "800mg" },
+                    depression: { start: "50mg", max: "300mg" }
+                }
+            },
+            {
+                name: "Clonazepam",
+                class: "Benzodiazepine",
+                indications: ["Panic Disorder", "Generalized Anxiety Disorder", "Seizure Disorders"],
+                receptors: [
+                    { name: "GABA-A", affinity: "positive allosteric modulator" }
+                ],
+                dosing: {
+                    panic: { start: "0.25mg", max: "4mg" },
+                    anxiety: { start: "0.25mg", max: "4mg" }
+                }
+            },
+            {
+                name: "Lithium",
+                class: "Mood Stabilizer",
+                indications: ["Bipolar Disorder"],
+                receptors: [
+                    { name: "Inositol", affinity: "indirect" },
+                    { name: "GSK-3β", affinity: "inhibitor" }
+                ],
+                dosing: {
+                    bipolar: { start: "300mg bid", max: "maintain 0.6-1.2 mEq/L" }
+                }
+            }
+        ];
+
+        function initializeMedicationData() {
+            // Populate medication guide
+            const medicationList = document.getElementById("medicationList");
+            medicationList.innerHTML = "";
+            
+            medications.forEach(med => {
+                const card = document.createElement("div");
+                card.className = "medication-card";
+                
+                let receptorHTML = med.receptors.map(r => 
+                    `<div class="receptor-item">${r.name} <span class="receptor-affinity">(${r.affinity})</span></div>`
+                ).join("");
+                
+                let indicationsHTML = med.indications.map(i => `<li>${i}</li>`).join("");
+                
+                card.innerHTML = `
+                    <div class="medication-header">
+                        <span class="medication-name">${med.name}</span>
+                        <span class="medication-class">${med.class}</span>
+                    </div>
+                    <div class="medication-body">
+                        <p><strong>Indications:</strong></p>
+                        <ul>${indicationsHTML}</ul>
+                        <p><strong>Receptor Activity:</strong></p>
+                        <div class="receptor-grid">${receptorHTML}</div>
+                    </div>
+                `;
+                
+                medicationList.appendChild(card);
+            });
+            
+            // Populate dosing calculator dropdown
+            const calcMedication = document.getElementById("calcMedication");
+            medications.forEach(med => {
+                const option = document.createElement("option");
+                option.value = med.name;
+                option.textContent = `${med.name} (${med.class})`;
+                calcMedication.appendChild(option);
+            });
+        }
+
+        // Diagnosis and Assessment functionality
+        document.getElementById("assessBtn").addEventListener("click", assessPatient);
+        
+        function assessPatient() {
+            // Get selected symptoms
+            const checkboxes = document.querySelectorAll('.symptom-checklist input[type="checkbox"]:checked');
+            const selectedSymptoms = Array.from(checkboxes).map(cb => cb.value);
+            
+            // Simple diagnostic algorithm (in a real app, this would be more sophisticated)
+            let diagnoses = [];
+            
+            if (selectedSymptoms.includes("depressedMood") && selectedSymptoms.includes("anhedonia")) {
+                if (selectedSymptoms.includes("elevatedMood") || selectedSymptoms.includes("irritability")) {
+                    diagnoses.push("Bipolar Disorder");
+                } else {
+                    diagnoses.push("Major Depressive Disorder");
+                }
+            }
+            
+            if (selectedSymptoms.includes("excessiveWorry") && selectedSymptoms.includes("panicAttacks")) {
+                diagnoses.push("Panic Disorder with Generalized Anxiety");
+            } else if (selectedSymptoms.includes("excessiveWorry")) {
+                diagnoses.push("Generalized Anxiety Disorder");
+            } else if (selectedSymptoms.includes("panicAttacks")) {
+                diagnoses.push("Panic Disorder");
+            }
+            
+            if (selectedSymptoms.includes("socialAnxiety")) {
+                diagnoses.push("Social Anxiety Disorder");
+            }
+            
+            if (selectedSymptoms.includes("ocdSymptoms")) {
+                diagnoses.push("Obsessive-Compulsive Disorder");
+            }
+            
+            if (selectedSymptoms.includes("ptsdSymptoms")) {
+                diagnoses.push("Post-Traumatic Stress Disorder");
+            }
+            
+            if (selectedSymptoms.includes("hallucinations") || selectedSymptoms.includes("delusions")) {
+                diagnoses.push("Psychotic Disorder");
+            }
+            
+            if (diagnoses.length === 0) {
+                diagnoses.push("No clear diagnosis based on provided symptoms");
+            }
+            
+            // Display results
+            const resultsDiv = document.getElementById("diagnosisResults");
+            resultsDiv.innerHTML = diagnoses.map(d => `
+                <div class="diagnosis-result">
+                    <h3>${d}</h3>
+                    <p>Based on the reported symptoms: ${selectedSymptoms.join(", ").replace(/([A-Z])/g, ' $1').toLowerCase()}</p>
+                </div>
+            `).join("");
+            
+            document.getElementById("assessmentResults").style.display = "block";
+            
+            // Store diagnosis for treatment planner
+            localStorage.setItem("currentDiagnosis", JSON.stringify({
+                diagnoses: diagnoses,
+                symptoms: selectedSymptoms
+            }));
+        }
+        
+        // Generate Treatment Plan
+        document.getElementById("generatePlanBtn")?.addEventListener("click", generateTreatmentPlan);
+        
+        function generateTreatmentPlan() {
+            const diagnosisData = JSON.parse(localStorage.getItem("currentDiagnosis"));
+            if (!diagnosisData) return;
+            
+            const treatmentPlanContainer = document.getElementById("treatmentPlanContainer");
+            treatmentPlanContainer.innerHTML = "";
+            
+            diagnosisData.diagnoses.forEach(diagnosis => {
+                const planSection = document.createElement("div");
+                planSection.className = "diagnosis-result";
+                
+                let recommendedMeds = [];
+                let therapyRecommendations = [];
+                
+                // Simple treatment algorithm (in a real app, this would be more sophisticated)
+                switch(diagnosis) {
+                    case "Major Depressive Disorder":
+                        recommendedMeds = ["Escitalopram", "Sertraline", "Bupropion", "Venlafaxine"];
+                        therapyRecommendations = ["Cognitive Behavioral Therapy", "Interpersonal Therapy"];
+                        break;
+                    case "Bipolar Disorder":
+                        recommendedMeds = ["Lithium", "Quetiapine", "Aripiprazole"];
+                        therapyRecommendations = ["Psychoeducation", "Family-Focused Therapy"];
+                        break;
+                    case "Generalized Anxiety Disorder":
+                        recommendedMeds = ["Escitalopram", "Sertraline", "Venlafaxine"];
+                        therapyRecommendations = ["Cognitive Behavioral Therapy", "Mindfulness-Based Therapy"];
+                        break;
+                    case "Panic Disorder":
+                        recommendedMeds = ["Sertraline", "Paroxetine", "Clonazepam (short-term)"];
+                        therapyRecommendations = ["Cognitive Behavioral Therapy with Exposure"];
+                        break;
+                    case "Social Anxiety Disorder":
+                        recommendedMeds = ["Sertraline", "Paroxetine", "Venlafaxine"];
+                        therapyRecommendations = ["Cognitive Behavioral Therapy with Social Skills Training"];
+                        break;
+                    case "Obsessive-Compulsive Disorder":
+                        recommendedMeds = ["Fluoxetine", "Sertraline", "Fluvoxamine"];
+                        therapyRecommendations = ["Exposure and Response Prevention Therapy"];
+                        break;
+                    case "Post-Traumatic Stress Disorder":
+                        recommendedMeds = ["Sertraline", "Paroxetine", "Venlafaxine"];
+                        therapyRecommendations = ["Trauma-Focused Cognitive Behavioral Therapy", "EMDR"];
+                        break;
+                    case "Psychotic Disorder":
+                        recommendedMeds = ["Aripiprazole", "Quetiapine", "Risperidone"];
+                        therapyRecommendations = ["Cognitive Behavioral Therapy for Psychosis", "Social Skills Training"];
+                        break;
+                    default:
+                        recommendedMeds = ["Consider referral for further evaluation"];
+                        therapyRecommendations = ["Consider referral for further evaluation"];
+                }
+                
+                let medsHTML = recommendedMeds.map(medName => {
+                    const med = medications.find(m => m.name === medName);
+                    if (!med) return `<li>${medName}</li>`;
+                    
+                    return `
+                        <li>
+                            <strong>${med.name}</strong> (${med.class}) - 
+                            Typical dose: ${Object.values(med.dosing)[0].start} to ${Object.values(med.dosing)[0].max}
+                        </li>
+                    `;
+                }).join("");
+                
+                let therapyHTML = therapyRecommendations.map(t => `<li>${t}</li>`).join("");
+                
+                planSection.innerHTML = `
+                    <h3>Treatment Plan for ${diagnosis}</h3>
+                    <div class="treatment-plan">
+                        <h4>Medication Options:</h4>
+                        <ul>${medsHTML}</ul>
+                        
+                        <h4>Therapy Recommendations:</h4>
+                        <ul>${therapyHTML}</ul>
+                    </div>
+                `;
+                
+                treatmentPlanContainer.appendChild(planSection);
+            });
+            
+            // Add print button
+            const printBtn = document.createElement("button");
+            printBtn.className = "btn btn-primary print-btn";
+            printBtn.innerHTML = '<i class="fas fa-print"></i> Print Treatment Plan';
+            printBtn.onclick = () => {
+                const element = document.getElementById("treatmentPlanContainer");
+                html2pdf().from(element).save('treatment_plan.pdf');
+            };
+            treatmentPlanContainer.appendChild(printBtn);
+            
+            // Switch to treatment planner tab
+            document.querySelector('.tablinks[onclick*="treatmentPlanner"]').click();
+        }
+        
+        // Dosing Calculator functionality
+        document.getElementById("calculateDoseBtn").addEventListener("click", calculateDose);
+        
+        function calculateDose() {
+            const medicationName = document.getElementById("calcMedication").value;
+            const weight = parseFloat(document.getElementById("calcPatientWeight").value);
+            const indication = document.getElementById("calcIndication").value;
+            const renalFunction = document.getElementById("calcRenalFunction").value;
+            
+            if (!medicationName || !indication) {
+                alert("Please select a medication and indication");
+                return;
+            }
+            
+            const med = medications.find(m => m.name === medicationName);
+            if (!med) {
+                alert("Medication not found in database");
+                return;
+            }
+            
+            const doseInfo = med.dosing[indication.split(" ")[0].toLowerCase()] || Object.values(med.dosing)[0];
+            if (!doseInfo) {
+                alert("No dosing information available for this indication");
+                return;
+            }
+            
+            let doseRecommendation = `
+                <p><strong>${med.name} for ${indication}:</strong></p>
+                <p>Standard dosing: ${doseInfo.start} initially, up to ${doseInfo.max} as needed</p>
+            `;
+            
+            // Adjust for renal function if needed
+            if (renalFunction !== "normal" && ["Lithium", "Venlafaxine", "Quetiapine"].includes(med.name)) {
+                doseRecommendation += `<p class="text-warning"><i class="fas fa-exclamation-triangle"></i> Reduce dose by 25-50% for ${renalFunction} renal impairment</p>`;
+            }
+            
+            // Adjust for weight if provided
+            if (weight && ["Lithium", "Quetiapine"].includes(med.name)) {
+                const adjustedDose = Math.round(weight / 70 * 100) / 100; // Simple linear adjustment based on 70kg standard
+                doseRecommendation += `<p>Weight-adjusted dose: approximately ${adjustedDose}x standard dose</p>`;
+            }
+            
+            document.getElementById("doseRecommendation").innerHTML = doseRecommendation;
+            document.getElementById("doseResults").style.display = "block";
+        }
+        
+        // Search functionality
+        document.getElementById("medicationSearch").addEventListener("input", (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll(".medication-card");
+            
+            cards.forEach(card => {
+                const name = card.querySelector(".medication-name").textContent.toLowerCase();
+                const medClass = card.querySelector(".medication-class").textContent.toLowerCase();
+                
+                if (name.includes(searchTerm) || medClass.includes(searchTerm)) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+        
+        document.getElementById("receptorSearch").addEventListener("input", (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const receptorItems = document.querySelectorAll(".receptor-item");
+            
+            receptorItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = "flex";
+                    item.parentElement.parentElement.style.display = "block"; // Show the containing card
+                } else {
+                    item.style.display = "none";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
