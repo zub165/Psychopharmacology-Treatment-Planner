@@ -2,6 +2,9 @@
 
 A comprehensive web-based tool for mental health professionals to manage psychiatric medication plans, perform structured assessments, and create evidence-based treatment plans.
 
+## Live Demo
+Access the live application at: https://zub165.github.io/Psychopharmacology-Treatment-Planner
+
 ## Features
 
 - **Comprehensive Diagnosis Tool**
@@ -31,6 +34,10 @@ A comprehensive web-based tool for mental health professionals to manage psychia
 
 ## Setup
 
+### Online Access
+Simply visit https://zub165.github.io/Psychopharmacology-Treatment-Planner and log in with the credentials below.
+
+### Local Development
 1. Clone the repository:
 ```bash
 git clone https://github.com/zub165/Psychopharmacology-Treatment-Planner.git
@@ -57,6 +64,7 @@ cd Psychopharmacology-Treatment-Planner
 - Data persistence using localStorage
 - Responsive design for mobile compatibility
 - PDF export capabilities
+- Deployed using GitHub Pages
 
 ## License
 
